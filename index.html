@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Map Video AI</title>
+    <title>Ultimate Map Video Studio</title>
 
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -12,38 +12,41 @@
     <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-    <!-- Cinematic Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Playfair+Display:wght@700&family=Montserrat:wght@400;600&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Playfair+Display:wght@700&family=Montserrat:wght@400;600&family=Orbitron:wght@700&family=Rajdhani:wght@600&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --glass-bg: rgba(15, 15, 15, 0.85);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.15);
-            --accent: #0dcaf0;
-            /* Cyan */
-            --text: #ffffff;
+            --glass: rgba(10, 10, 10, 0.9);
+            --border: rgba(255, 255, 255, 0.1);
+            --accent: #00D9FF;
+            --text: #fff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             background: #000;
             color: var(--text);
+            font-family: 'Montserrat', sans-serif;
             height: 100vh;
             overflow: hidden;
-            font-family: 'Montserrat', sans-serif;
         }
 
-        /* Map Container */
         #map {
             width: 100vw;
             height: 100vh;
-            z-index: 1;
-            background: #121212;
-            transition: filter 0.5s ease;
+            background: #0a0a0a;
+            transition: filter 0.5s;
         }
 
-        /* UI Overlays */
-        .ui-layer {
-            position: absolute;
+        /* UI Layer */
+        .ui-overlay {
+            position: fixed;
             inset: 0;
             z-index: 1000;
             pointer-events: none;
@@ -53,140 +56,192 @@
             justify-content: space-between;
         }
 
-        /* Narration Box (Bottom Left) */
-        .narration-box {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: var(--glass-border);
-            border-left: 4px solid var(--accent);
-            padding: 24px;
-            border-radius: 0 12px 12px 0;
-            width: 90%;
-            max-width: 420px;
+        /* Top Controls */
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             pointer-events: auto;
-            transform: translateX(-120%);
-            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
         }
 
-        .narration-box.active {
+        .brand {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .edit-btn {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .edit-btn:hover {
+            background: var(--accent);
+            color: #000;
+        }
+
+        /* Narration Card */
+        .narration-card {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 20, 20, 0.9) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            padding: 28px;
+            border-radius: 0 16px 16px 0;
+            width: 90%;
+            max-width: 480px;
+            pointer-events: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            transform: translateX(-150%);
+            transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .narration-card.show {
             transform: translateX(0);
         }
 
-        .narration-title {
+        .card-header {
             font-family: 'Orbitron', sans-serif;
             font-size: 0.75rem;
             color: var(--accent);
             letter-spacing: 2px;
             text-transform: uppercase;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
-        .narration-text {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        .card-body {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: #fff;
+            font-weight: 500;
         }
 
-        /* Controls (Bottom Right) */
+        /* Controls */
         .controls {
-            position: absolute;
-            bottom: 30px;
-            right: 30px;
+            position: fixed;
+            bottom: 35px;
+            right: 35px;
             display: flex;
-            gap: 12px;
+            gap: 14px;
             pointer-events: auto;
         }
 
-        .btn-glass {
-            width: 48px;
-            height: 48px;
+        .ctrl-btn {
+            width: 54px;
+            height: 54px;
             border-radius: 50%;
-            background: rgba(30, 30, 30, 0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.25rem;
-            transition: all 0.2s;
+            font-size: 1.3rem;
             cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
 
-        .btn-glass:hover {
-            background: white;
-            color: black;
-            transform: scale(1.1);
-        }
-
-        .btn-glass.active {
+        .ctrl-btn:hover {
             background: var(--accent);
-            color: black;
-            border-color: var(--accent);
+            color: #000;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 217, 255, 0.3);
         }
 
-        /* Marker Styles */
-        .marker-pulse {
-            width: 20px;
-            height: 20px;
+        /* Advanced Map Visuals */
+        .pulse-dot {
+            width: 16px;
+            height: 16px;
             background: var(--accent);
             border-radius: 50%;
-            box-shadow: 0 0 0 0 rgba(13, 202, 240, 0.7);
-            animation: pulse 2s infinite;
+            box-shadow: 0 0 0 0 rgba(0, 217, 255, 0.8);
+            animation: pulse-ring 2.5s ease-out infinite;
         }
 
-        @keyframes pulse {
+        @keyframes pulse-ring {
             0% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(13, 202, 240, 0.7);
+                box-shadow: 0 0 0 0 rgba(0, 217, 255, 0.8);
             }
 
             70% {
-                transform: scale(1);
-                box-shadow: 0 0 0 20px rgba(13, 202, 240, 0);
+                box-shadow: 0 0 0 25px rgba(0, 217, 255, 0);
             }
 
             100% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(13, 202, 240, 0);
+                box-shadow: 0 0 0 0 rgba(0, 217, 255, 0);
             }
         }
 
-        /* Top Bar */
-        .top-bar {
-            pointer-events: auto;
-            display: flex;
-            justify-content: flex-end;
+        .arrow-pointer {
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 30px solid var(--accent);
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+            animation: bounce-arrow 1.5s ease-in-out infinite;
         }
 
-        .editor-btn {
-            background: var(--glass-bg);
-            border: var(--glass-border);
+        @keyframes bounce-arrow {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .map-label {
+            background: rgba(0, 0, 0, 0.85);
             color: #fff;
-            padding: 8px 20px;
-            border-radius: 30px;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-
-        .editor-btn:hover {
-            background: var(--accent);
-            color: #000;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            white-space: nowrap;
         }
 
         /* Font Variations */
-        .font-cinzel {
+        .f-cinzel {
             font-family: 'Cinzel', serif;
         }
 
-        .font-playfair {
+        .f-play {
             font-family: 'Playfair Display', serif;
+        }
+
+        .f-orb {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Leaflet Overrides */
+        .leaflet-control-zoom,
+        .leaflet-control-attribution {
+            display: none;
         }
     </style>
 </head>
@@ -195,81 +250,97 @@
 
     <div id="map"></div>
 
-    <div class="ui-layer">
-        <div class="top-bar">
-            <button class="editor-btn" data-bs-toggle="modal" data-bs-target="#editorModal">
-                <i class="bi bi-pen me-2"></i>EDITOR
+    <div class="ui-overlay">
+        <div class="top-controls">
+            <div class="brand">MAP VIDEO AI</div>
+            <button class="edit-btn" data-bs-toggle="modal" data-bs-target="#editorModal">
+                <i class="bi bi-gear-fill me-2"></i>EDITOR
             </button>
         </div>
 
-        <div class="narration-box" id="narrationCard">
-            <div class="narration-title">
-                <div class="spinner-grow spinner-grow-sm text-info" id="ttsLoader" style="display:none"></div>
-                <span id="cardTitle">INFO</span>
+        <div class="narration-card" id="narratorCard">
+            <div class="card-header">
+                <div class="spinner-border spinner-border-sm text-info" id="ttsSpinner" style="display:none"></div>
+                <span id="locTitle">SYSTEM</span>
             </div>
-            <div class="narration-text" id="cardText">
-                Load a script to begin journey.
+            <div class="card-body" id="locText">
+                Load a script and press play to begin your journey.
             </div>
         </div>
 
         <div class="controls">
-            <button class="btn-glass" id="playBtn"><i class="bi bi-play-fill"></i></button>
-            <button class="btn-glass" id="soundBtn"><i class="bi bi-volume-up-fill"></i></button>
-            <button class="btn-glass" id="fullBtn"><i class="bi bi-arrows-fullscreen"></i></button>
+            <button class="ctrl-btn" id="btnPlay"><i class="bi bi-play-fill"></i></button>
+            <button class="ctrl-btn" id="btnSound"><i class="bi bi-volume-up-fill"></i></button>
+            <button class="ctrl-btn" id="btnFull"><i class="bi bi-fullscreen"></i></button>
         </div>
     </div>
 
-    <!-- EDITOR MODAL -->
-    <div class="modal fade" id="editorModal" data-bs-backdrop="static" tabindex="-1">
+    <!-- MODAL -->
+    <div class="modal fade" id="editorModal" data-bs-backdrop="static">
         <div class="modal-dialog modal-xl modal-dialog-centered">
-            <div class="modal-content bg-dark border-secondary text-light">
+            <div class="modal-content bg-dark text-light border-secondary">
                 <div class="modal-header border-secondary">
-                    <h5 class="modal-title font-monospace text-info">SCRIPT CONTROL</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title text-info font-monospace">SCRIPT STUDIO</h5>
+                    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <ul class="nav nav-pills mb-3" id="pills-tab">
-                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-json">JSON Input</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-gen">AI Prompt Generator</button></li>
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabJson">JSON Editor</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabPrompt">AI Prompt</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabDocs">Quick Guide</button></li>
                     </ul>
                     <div class="tab-content">
-                        <!-- JSON Editor -->
-                        <div class="tab-pane fade show active" id="tab-json">
-                            <textarea id="jsonInput" class="form-control bg-black text-success font-monospace border-0" rows="15" placeholder="// Paste JSON here..."></textarea>
+                        <!-- JSON -->
+                        <div class="tab-pane fade show active" id="tabJson">
+                            <textarea id="jsonEditor" class="form-control bg-black text-success font-monospace border-0" rows="16"></textarea>
                         </div>
-                        <!-- Prompt Generator -->
-                        <div class="tab-pane fade" id="tab-gen">
+                        <!-- Prompt -->
+                        <div class="tab-pane fade" id="tabPrompt">
                             <div class="row g-3">
-                                <div class="col-md-12">
-                                    <label class="text-secondary small">STORY TOPIC</label>
-                                    <input type="text" id="p_topic" class="form-control bg-secondary text-white border-0" placeholder="e.g. History of Rome">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="text-secondary small">MAP THEME</label>
-                                    <select id="p_theme" class="form-select bg-secondary text-white border-0">
-                                        <option value="dark">Dark Matter (Cinematic)</option>
+                                <div class="col-12"><input id="pTopic" class="form-control bg-secondary text-white border-0" placeholder="Story Topic (e.g., Journey of Ganges River)"></div>
+                                <div class="col-6">
+                                    <select id="pStyle" class="form-select bg-secondary text-white border-0">
+                                        <option value="dark">Dark (Cinematic)</option>
                                         <option value="satellite">Satellite (Realistic)</option>
                                         <option value="voyager">Voyager (Clean)</option>
                                         <option value="light">Light (Classic)</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4">
-                                    <label class="text-secondary small">LANGUAGE</label>
-                                    <input type="text" id="p_lang" class="form-control bg-secondary text-white border-0" value="English">
-                                </div>
-                                <div class="col-12 mt-4">
-                                    <div class="bg-black p-3 rounded border border-secondary">
-                                        <pre id="finalPrompt" class="text-info m-0" style="white-space: pre-wrap; font-size: 0.8rem;"></pre>
+                                <div class="col-6"><input id="pLang" class="form-control bg-secondary text-white border-0" value="English"></div>
+                                <div class="col-12 mt-3">
+                                    <div class="bg-black p-3 rounded">
+                                        <pre id="promptOut" class="text-warning mb-0" style="white-space: pre-wrap; font-size: 0.75rem;"></pre>
                                     </div>
-                                    <button class="btn btn-outline-info w-100 mt-2" onclick="copyPrompt()"><i class="bi bi-clipboard"></i> COPY PROMPT</button>
+                                    <button class="btn btn-outline-warning w-100 mt-2" onclick="copyPrompt()"><i class="bi bi-clipboard-check"></i> COPY</button>
                                 </div>
+                            </div>
+                        </div>
+                        <!-- Docs -->
+                        <div class="tab-pane fade" id="tabDocs">
+                            <div class="bg-black p-3 rounded" style="max-height: 400px; overflow-y: auto;">
+                                <h6 class="text-info">Available Event Types:</h6>
+                                <ul class="small text-secondary">
+                                    <li><code>pan</code> - Smooth camera movement to location</li>
+                                    <li><code>zoom</code> - Zoom in/out on area</li>
+                                    <li><code>marker</code> - Pulsing point marker</li>
+                                    <li><code>arrow</code> - Animated directional pointer</li>
+                                    <li><code>circle</code> - Circular highlight area</li>
+                                    <li><code>polygon</code> - Custom shape (provide coordinates array)</li>
+                                    <li><code>rectangle</code> - Rectangular area (provide bounds)</li>
+                                    <li><code>label</code> - Text overlay on map</li>
+                                    <li><code>line</code> - Animated route/path</li>
+                                </ul>
+                                <h6 class="text-info mt-3">Visual Properties:</h6>
+                                <p class="small text-secondary">Use <code>"visual"</code> object with: <code>color</code>, <code>size</code>, <code>animation</code> ("pulse", "fade", "grow"), <code>opacity</code></p>
+                                <h6 class="text-info mt-3">Auto-Centering:</h6>
+                                <p class="small text-secondary">The map automatically centers on each event. Specify <code>"zoom"</code> to override auto-zoom.</p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer border-secondary">
-                    <button class="btn btn-link text-white text-decoration-none" onclick="loadSample()">Load Sample</button>
-                    <button class="btn btn-info px-4 fw-bold" onclick="runScript()">LOAD & PLAY</button>
+                    <button class="btn btn-outline-light" onclick="loadSample()">Load Sample</button>
+                    <button class="btn btn-info fw-bold px-4" onclick="runScript()">RUN SCRIPT</button>
                 </div>
             </div>
         </div>
@@ -279,300 +350,519 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // --- GLOBAL STATE ---
-        let map;
-        let script = null;
-        let currentStep = 0;
-        let isPlaying = false;
-        let ttsEnabled = true;
-        let activeLayer = null; // Stores current marker/highlight
+        // --- STATE ---
+        let map, script = null,
+            step = 0,
+            playing = false,
+            ttsOn = true;
         const synth = window.speechSynthesis;
+        let layers = []; // Track all dynamic layers
 
-        // --- MAP THEMES ---
-        // We use different providers based on JSON "style" key
+        // --- THEMES ---
         const THEMES = {
             'dark': 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
             'light': 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-            'voyager': 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png',
+            'voyager': 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
             'satellite': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
             'street': 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
         };
 
         // --- INIT ---
         window.addEventListener('load', () => {
-            // Default Map Init
             map = L.map('map', {
                 zoomControl: false,
-                attributionControl: false,
-                fadeAnimation: true
+                attributionControl: false
             }).setView([20, 0], 2);
-
-            // Load default dark theme initially
             L.tileLayer(THEMES['dark']).addTo(map);
 
-            // Listeners
-            document.getElementById('playBtn').onclick = togglePlay;
-            document.getElementById('soundBtn').onclick = toggleMute;
-            document.getElementById('fullBtn').onclick = toggleFull;
+            document.getElementById('btnPlay').onclick = togglePlay;
+            document.getElementById('btnSound').onclick = toggleSound;
+            document.getElementById('btnFull').onclick = () => {
+                if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+                else document.exitFullscreen();
+            };
 
-            // Live Prompt Update
-            ['p_topic', 'p_theme', 'p_lang'].forEach(id => {
-                document.getElementById(id).addEventListener('input', updatePrompt);
+            ['pTopic', 'pStyle', 'pLang'].forEach(id => {
+                document.getElementById(id).addEventListener('input', genPrompt);
             });
-            updatePrompt();
+            genPrompt();
         });
 
         // --- PROMPT GENERATOR ---
-        function updatePrompt() {
-            const topic = document.getElementById('p_topic').value || "[TOPIC]";
-            const theme = document.getElementById('p_theme').value;
-            const lang = document.getElementById('p_lang').value;
+        function genPrompt() {
+            const topic = document.getElementById('pTopic').value || "[YOUR_TOPIC]";
+            const style = document.getElementById('pStyle').value;
+            const lang = document.getElementById('pLang').value;
 
-            const txt = `Act as an expert map visualization architect.
-Generate a strictly valid JSON script for a map video.
+            const prompt = `You are a professional map animation designer.
+Generate a JSON script for an interactive map video.
 
-TOPIC: ${topic}
-TARGET_STYLE: ${theme}
-LANGUAGE: ${lang}
+REQUIREMENTS:
+- Topic: ${topic}
+- Map Style: ${style}
+- Language: ${lang}
+
+JSON STRUCTURE (strictly follow):
+{
+  "title": "Video Title",
+  "style": "${style}",
+  "map": { "initialCenter": [lat, lng], "initialZoom": number },
+  "timeline": [
+    {
+      "type": "pan" | "zoom" | "marker" | "arrow" | "circle" | "polygon" | "label" | "line",
+      "location": [lat, lng] OR array of coordinates for polygon/line,
+      "zoom": number (optional - auto-calculated if not provided),
+      "visual": { 
+        "color": "#HEX", 
+        "size": "small|medium|large",
+        "animation": "pulse|fade|grow",
+        "opacity": 0.0-1.0
+      },
+      "narration": {
+        "title": "Location Name (SHORT)",
+        "text": "Narration text (1-2 sentences max for TTS)"
+      }
+    }
+  ]
+}
+
+EVENT TYPES EXPLAINED:
+- "pan": Move camera to location (auto-centers)
+- "marker": Pulsing dot at location (auto-centers)
+- "arrow": Directional pointer at location (auto-centers)
+- "circle": Circular area highlight (auto-fits bounds)
+- "polygon": Custom shape (auto-fits bounds to show full shape)
+- "rectangle": Box area (auto-fits bounds)
+- "label": Text overlay at location (auto-centers)
+- "line": Animated path (auto-fits to show entire route)
 
 RULES:
-1. Root object must have: "title", "style" ("${theme}"), "map" (initialCenter), "timeline" (array).
-2. "timeline" items must have: "type", "location" [lat, lng], "narration" { "title", "text" }.
-3. Types allowed: "pan", "zoom", "marker", "highlight".
-4. Coordinates MUST be real [latitude, longitude] numbers.
-5. Narration text should be concise (1-2 sentences) for video subtitles.
-6. NO Markdown, NO Comments. Just RAW JSON.`;
+- All coordinates must be real [latitude, longitude] numbers
+- Keep narration concise (TTS will read it aloud)
+- Use vivid colors for visual appeal
+- NO markdown, NO comments - just RAW JSON
+- Timeline must be sorted chronologically
+- Map automatically centers on each event - no need to specify zoom unless you want to override
 
-            document.getElementById('finalPrompt').innerText = txt;
+Return ONLY the JSON object.`;
+
+            document.getElementById('promptOut').innerText = prompt;
         }
 
         function copyPrompt() {
-            navigator.clipboard.writeText(document.getElementById('finalPrompt').innerText);
-            alert("Prompt Copied! Paste into AI.");
+            navigator.clipboard.writeText(document.getElementById('promptOut').innerText);
+            alert("✅ Prompt copied! Paste into ChatGPT/Claude.");
         }
 
         // --- SCRIPT ENGINE ---
         function runScript() {
             try {
-                const raw = document.getElementById('jsonInput').value;
+                const raw = document.getElementById('jsonEditor').value;
                 script = JSON.parse(raw);
 
-                // 1. Set Theme
-                setMapTheme(script.style || 'dark');
+                // Apply Theme
+                setTheme(script.style || 'dark');
 
-                // 2. Reset State
-                currentStep = 0;
-                isPlaying = false;
+                // Reset
+                step = 0;
+                playing = false;
+                clearLayers();
                 map.setView(script.map.initialCenter, script.map.initialZoom, {
                     animate: false
                 });
 
-                // 3. Close Modal & Ready
+                // UI
                 bootstrap.Modal.getInstance(document.getElementById('editorModal')).hide();
                 showCard("READY", script.title || "Untitled Project");
-                document.getElementById('narrationCard').classList.add('active');
-
-                // 4. Reset Button
-                updatePlayIcon(false);
+                document.getElementById('narratorCard').classList.add('show');
+                updatePlayBtn(false);
 
             } catch (e) {
-                alert("JSON Parse Error: " + e.message);
+                alert("❌ JSON Error: " + e.message);
             }
         }
 
-        function setMapTheme(styleKey) {
-            // Remove old layers
-            map.eachLayer((layer) => {
-                if (layer instanceof L.TileLayer) map.removeLayer(layer);
+        function setTheme(style) {
+            map.eachLayer(l => {
+                if (l instanceof L.TileLayer) map.removeLayer(l);
             });
-
-            // Add new layer
-            const url = THEMES[styleKey] || THEMES['dark'];
-            L.tileLayer(url, {
+            L.tileLayer(THEMES[style] || THEMES['dark'], {
                 maxZoom: 19
             }).addTo(map);
 
-            // Apply Filters for visibility
+            // Visual filters for readability
             const mapEl = document.getElementById('map');
-            if (styleKey === 'satellite') {
-                mapEl.style.filter = "brightness(1.1) contrast(1.1)";
-            } else if (styleKey === 'dark') {
-                mapEl.style.filter = "brightness(0.9) contrast(1.2)";
-            } else {
-                mapEl.style.filter = "none";
-            }
+            if (style === 'satellite') mapEl.style.filter = "brightness(1.2) contrast(1.1)";
+            else if (style === 'dark') mapEl.style.filter = "brightness(0.95) contrast(1.15)";
+            else mapEl.style.filter = "none";
         }
 
         function togglePlay() {
-            if (!script) return alert("Please load a script first.");
+            if (!script) return alert("⚠️ Load a script first!");
 
-            if (isPlaying) {
-                isPlaying = false;
+            if (playing) {
+                playing = false;
                 synth.cancel();
-                updatePlayIcon(false);
+                updatePlayBtn(false);
             } else {
-                isPlaying = true;
-                updatePlayIcon(true);
+                playing = true;
+                updatePlayBtn(true);
                 if (synth.paused) synth.resume();
-                else playNextStep();
+                else playNext();
             }
         }
 
-        function playNextStep() {
-            if (!isPlaying) return;
-            if (currentStep >= script.timeline.length) {
-                isPlaying = false;
-                updatePlayIcon(false);
-                showCard("END", "Presentation Finished.");
+        function playNext() {
+            if (!playing) return;
+            if (step >= script.timeline.length) {
+                playing = false;
+                updatePlayBtn(false);
+                showCard("END", "Story Complete.");
                 return;
             }
 
-            const event = script.timeline[currentStep];
-            executeEvent(event);
-        }
+            const event = script.timeline[step];
 
-        function executeEvent(event) {
-            // Visuals
-            if (event.type === 'pan' || event.type === 'zoom') {
-                map.flyTo(event.location, event.zoom || map.getZoom(), {
-                    duration: 2.5
-                });
-            } else if (event.type === 'marker') {
-                showMarker(event.location);
-            } else if (event.type === 'highlight') {
-                showHighlight(event.location);
-            }
+            // *** AUTO-CENTER CAMERA FOR EVERY EVENT ***
+            autoCenterEvent(event);
+
+            // Execute Visual (after camera moves)
+            setTimeout(() => {
+                executeVisual(event);
+            }, 500);
 
             // Narration
             if (event.narration) {
                 showCard(event.narration.title, event.narration.text);
-
-                if (ttsEnabled) {
+                if (ttsOn) {
                     speak(event.narration.text, () => {
-                        currentStep++;
-                        setTimeout(playNextStep, 800); // Pause between steps
+                        step++;
+                        setTimeout(playNext, 600);
                     });
                 } else {
-                    // Fallback timer
                     setTimeout(() => {
-                        currentStep++;
-                        playNextStep();
-                    }, 4000);
+                        step++;
+                        playNext();
+                    }, 3500);
                 }
             } else {
                 setTimeout(() => {
-                    currentStep++;
-                    playNextStep();
+                    step++;
+                    playNext();
                 }, 2000);
             }
         }
 
-        // --- HELPERS ---
-        function showMarker(coords) {
-            if (activeLayer) map.removeLayer(activeLayer);
+        // *** NEW: AUTO-CENTER FUNCTION ***
+        function autoCenterEvent(e) {
+            const defaultZoom = {
+                'marker': 10,
+                'arrow': 10,
+                'label': 9,
+                'pan': 8,
+                'zoom': e.zoom || 7,
+                'circle': 7,
+                'polygon': 6,
+                'rectangle': 6,
+                'line': 5
+            };
+
+            // Get target zoom (from JSON or default)
+            const targetZoom = e.zoom || defaultZoom[e.type] || 6;
+
+            switch (e.type) {
+                case 'marker':
+                case 'arrow':
+                case 'label':
+                case 'pan':
+                case 'zoom':
+                    // Single point - just flyTo
+                    const coords = Array.isArray(e.location) ? e.location : [0, 0];
+                    map.flyTo(coords, targetZoom, {
+                        duration: 2,
+                        easeLinearity: 0.25
+                    });
+                    break;
+
+                case 'circle':
+                    // Circle - calculate bounds from center + radius
+                    const center = Array.isArray(e.location) ? e.location : [0, 0];
+                    const radius = e.radius || 120000; // meters
+                    const bounds = L.latLng(center).toBounds(radius * 2);
+                    map.flyToBounds(bounds, {
+                        padding: [50, 50],
+                        duration: 2,
+                        maxZoom: targetZoom
+                    });
+                    break;
+
+                case 'polygon':
+                case 'line':
+                    // Multi-point - fit bounds to show all points
+                    if (Array.isArray(e.location) && e.location.length > 0) {
+                        const polyBounds = L.latLngBounds(e.location);
+                        map.flyToBounds(polyBounds, {
+                            padding: [80, 80],
+                            duration: 2,
+                            maxZoom: targetZoom
+                        });
+                    }
+                    break;
+
+                case 'rectangle':
+                    // Rectangle - fit to provided bounds
+                    if (Array.isArray(e.location) && e.location.length === 2) {
+                        map.flyToBounds(e.location, {
+                            padding: [50, 50],
+                            duration: 2
+                        });
+                    }
+                    break;
+            }
+        }
+
+        // --- VISUAL EXECUTION ---
+        function executeVisual(e) {
+            const color = e.visual?.color || '#00D9FF';
+            const opacity = e.visual?.opacity || 0.6;
+
+            switch (e.type) {
+                case 'marker':
+                    addMarker(e.location, color);
+                    break;
+                case 'arrow':
+                    addArrow(e.location, color);
+                    break;
+                case 'circle':
+                    addCircle(e.location, color, opacity, e.radius);
+                    break;
+                case 'polygon':
+                    addPolygon(e.location, color, opacity);
+                    break;
+                case 'rectangle':
+                    addRectangle(e.location, color, opacity);
+                    break;
+                case 'label':
+                    addLabel(e.location, e.label || e.narration?.title, color);
+                    break;
+                case 'line':
+                    addLine(e.location, color);
+                    break;
+            }
+        }
+
+        function addMarker(coords, color) {
             const icon = L.divIcon({
-                className: 'custom-icon',
-                html: `<div class="marker-pulse"></div>`,
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
+                className: 'custom-marker',
+                html: `<div class="pulse-dot" style="background:${color}; box-shadow: 0 0 0 0 ${color}CC;"></div>`,
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
             });
-            activeLayer = L.marker(coords, {
-                icon: icon
+            const m = L.marker(coords, {
+                icon
             }).addTo(map);
+            layers.push(m);
         }
 
-        function showHighlight(coords) {
-            if (activeLayer) map.removeLayer(activeLayer);
-            activeLayer = L.circle(coords, {
-                color: 'var(--accent)',
-                fillColor: 'var(--accent)',
-                fillOpacity: 0.3,
-                radius: 150000
+        function addArrow(coords, color) {
+            const icon = L.divIcon({
+                className: 'arrow-icon',
+                html: `<div class="arrow-pointer" style="border-bottom-color:${color};"></div>`,
+                iconSize: [30, 30],
+                iconAnchor: [15, 30]
+            });
+            const m = L.marker(coords, {
+                icon
             }).addTo(map);
+            layers.push(m);
         }
 
+        function addCircle(coords, color, opacity, radius) {
+            const c = L.circle(coords, {
+                color: color,
+                fillColor: color,
+                fillOpacity: opacity,
+                radius: radius || 120000,
+                weight: 2
+            }).addTo(map);
+            layers.push(c);
+        }
+
+        function addPolygon(coords, color, opacity) {
+            const p = L.polygon(coords, {
+                color: color,
+                fillColor: color,
+                fillOpacity: opacity,
+                weight: 3
+            }).addTo(map);
+            layers.push(p);
+        }
+
+        function addRectangle(bounds, color, opacity) {
+            const r = L.rectangle(bounds, {
+                color: color,
+                fillColor: color,
+                fillOpacity: opacity,
+                weight: 3
+            }).addTo(map);
+            layers.push(r);
+        }
+
+        function addLabel(coords, text, color) {
+            const icon = L.divIcon({
+                className: 'text-label',
+                html: `<div class="map-label" style="border-color:${color}; color:${color};">${text}</div>`,
+                iconAnchor: [0, 0]
+            });
+            const m = L.marker(coords, {
+                icon
+            }).addTo(map);
+            layers.push(m);
+        }
+
+        function addLine(coords, color) {
+            const line = L.polyline(coords, {
+                color: color,
+                weight: 4,
+                opacity: 0.9,
+                dashArray: '10, 10'
+            }).addTo(map);
+            layers.push(line);
+        }
+
+        function clearLayers() {
+            layers.forEach(l => map.removeLayer(l));
+            layers = [];
+        }
+
+        // --- HELPERS ---
         function showCard(title, text) {
-            document.getElementById('cardTitle').innerText = title || "INFO";
-            document.getElementById('cardText').innerText = text;
+            document.getElementById('locTitle').innerText = title || "INFO";
+            document.getElementById('locText').innerText = text;
 
-            // Font Randomizer
-            const fonts = ['font-cinzel', 'font-playfair', ''];
-            const randomFont = fonts[Math.floor(Math.random() * fonts.length)];
-            const textEl = document.getElementById('cardText');
-            textEl.className = 'narration-text ' + randomFont;
+            const fonts = ['f-cinzel', 'f-play', 'f-orb', ''];
+            const rand = fonts[Math.floor(Math.random() * fonts.length)];
+            document.getElementById('locText').className = 'card-body ' + rand;
 
-            document.getElementById('narrationCard').classList.add('active');
+            document.getElementById('narratorCard').classList.add('show');
         }
 
         function speak(text, callback) {
             synth.cancel();
             const u = new SpeechSynthesisUtterance(text);
-            u.rate = 1.0;
+            u.rate = 0.95;
 
-            const loader = document.getElementById('ttsLoader');
-            loader.style.display = 'inline-block';
+            const spinner = document.getElementById('ttsSpinner');
+            spinner.style.display = 'inline-block';
 
             u.onend = () => {
-                loader.style.display = 'none';
+                spinner.style.display = 'none';
                 if (callback) callback();
             };
             synth.speak(u);
         }
 
-        function updatePlayIcon(playing) {
-            const btn = document.getElementById('playBtn');
-            btn.innerHTML = playing ? '<i class="bi bi-pause-fill"></i>' : '<i class="bi bi-play-fill"></i>';
+        function updatePlayBtn(isPlaying) {
+            const btn = document.getElementById('btnPlay');
+            btn.innerHTML = isPlaying ? '<i class="bi bi-pause-fill"></i>' : '<i class="bi bi-play-fill"></i>';
         }
 
-        function toggleMute() {
-            ttsEnabled = !ttsEnabled;
-            const btn = document.getElementById('soundBtn');
-            btn.innerHTML = ttsEnabled ? '<i class="bi bi-volume-up-fill"></i>' : '<i class="bi bi-volume-mute-fill"></i>';
-            if (!ttsEnabled) synth.cancel();
-        }
-
-        function toggleFull() {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-            else document.exitFullscreen();
+        function toggleSound() {
+            ttsOn = !ttsOn;
+            const btn = document.getElementById('btnSound');
+            btn.innerHTML = ttsOn ? '<i class="bi bi-volume-up-fill"></i>' : '<i class="bi bi-volume-mute-fill"></i>';
+            if (!ttsOn) synth.cancel();
         }
 
         function loadSample() {
             const sample = {
-                "title": "Satellite View Demo",
-                "style": "satellite",
+                "title": "Auto-Center Demo: India Geography",
+                "style": "voyager",
                 "map": {
-                    "initialCenter": [28.6139, 77.2090],
+                    "initialCenter": [20.5937, 78.9629],
                     "initialZoom": 4
                 },
                 "timeline": [{
-                        "type": "pan",
-                        "location": [28.6139, 77.2090],
-                        "zoom": 10,
-                        "narration": {
-                            "title": "New Delhi",
-                            "text": "Welcome to New Delhi, viewed from space via satellite imagery."
-                        }
-                    },
-                    {
                         "type": "marker",
-                        "location": [28.6129, 77.2295],
+                        "location": [28.6139, 77.2090],
+                        "visual": {
+                            "color": "#FF6B6B"
+                        },
                         "narration": {
-                            "title": "India Gate",
-                            "text": "Here stands the India Gate, a war memorial located astride the Rajpath."
+                            "title": "DELHI",
+                            "text": "Our journey begins in Delhi, the capital. Watch as the map auto-centers."
                         }
                     },
                     {
-                        "type": "pan",
-                        "location": [19.0760, 72.8777],
-                        "zoom": 10,
+                        "type": "arrow",
+                        "location": [28.6129, 77.2295],
+                        "visual": {
+                            "color": "#FFD93D"
+                        },
                         "narration": {
-                            "title": "Mumbai",
-                            "text": "Flying southwest, we arrive at the island city of Mumbai."
+                            "title": "INDIA GATE",
+                            "text": "Here is the India Gate memorial. The camera automatically focuses on this exact location."
+                        }
+                    },
+                    {
+                        "type": "line",
+                        "location": [
+                            [28.6139, 77.2090],
+                            [27.1767, 78.0081],
+                            [25.3176, 82.9739]
+                        ],
+                        "visual": {
+                            "color": "#51CF66"
+                        },
+                        "narration": {
+                            "title": "ROUTE",
+                            "text": "This animated line connects Delhi, Agra, and Varanasi. The map auto-fits to show the entire route."
+                        }
+                    },
+                    {
+                        "type": "circle",
+                        "location": [25.3176, 82.9739],
+                        "visual": {
+                            "color": "#9B59B6",
+                            "opacity": 0.4
+                        },
+                        "narration": {
+                            "title": "VARANASI REGION",
+                            "text": "The camera auto-zooms out to show this entire circular region around Varanasi."
+                        }
+                    },
+                    {
+                        "type": "polygon",
+                        "location": [
+                            [8, 77],
+                            [8, 78],
+                            [9, 78],
+                            [9, 77]
+                        ],
+                        "visual": {
+                            "color": "#00D9FF",
+                            "opacity": 0.3
+                        },
+                        "narration": {
+                            "title": "KERALA",
+                            "text": "Watch how the map automatically fits this entire polygon area representing Kerala backwaters."
+                        }
+                    },
+                    {
+                        "type": "label",
+                        "location": [19.0760, 72.8777],
+                        "label": "MUMBAI",
+                        "visual": {
+                            "color": "#FFD93D"
+                        },
+                        "narration": {
+                            "title": "MUMBAI",
+                            "text": "Finally, we auto-center on Mumbai's label on the western coast."
                         }
                     }
                 ]
             };
-            document.getElementById('jsonInput').value = JSON.stringify(sample, null, 2);
+            document.getElementById('jsonEditor').value = JSON.stringify(sample, null, 2);
         }
     </script>
 </body>
