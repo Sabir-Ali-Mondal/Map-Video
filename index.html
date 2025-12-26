@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Map Video Studio</title>
+    <title>Ultimate Map Video Studio AI</title>
 
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -13,14 +13,14 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Playfair+Display:wght@700&family=Montserrat:wght@400;600&family=Orbitron:wght@700&family=Rajdhani:wght@600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Rajdhani:wght@600&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --glass: rgba(10, 10, 10, 0.9);
-            --border: rgba(255, 255, 255, 0.1);
-            --accent: #00D9FF;
-            --text: #fff;
+            --glass: rgba(12, 12, 12, 0.95);
+            --border: rgba(255, 255, 255, 0.15);
+            --accent: #00E5FF;
+            --text: #e0e0e0;
         }
 
         * {
@@ -40,23 +40,21 @@
         #map {
             width: 100vw;
             height: 100vh;
-            background: #0a0a0a;
-            transition: filter 0.5s;
+            background: #050505;
         }
 
-        /* UI Layer */
+        /* --- UI LAYER --- */
         .ui-overlay {
             position: fixed;
             inset: 0;
             z-index: 1000;
             pointer-events: none;
-            padding: 20px;
+            padding: 25px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
-        /* Top Controls */
         .top-controls {
             display: flex;
             justify-content: space-between;
@@ -68,45 +66,46 @@
             background: var(--glass);
             backdrop-filter: blur(10px);
             border: 1px solid var(--border);
-            padding: 8px 20px;
-            border-radius: 25px;
+            padding: 10px 24px;
+            border-radius: 30px;
             font-family: 'Rajdhani', sans-serif;
-            font-size: 0.9rem;
-            letter-spacing: 3px;
+            font-size: 1rem;
+            letter-spacing: 2px;
             color: var(--accent);
             text-transform: uppercase;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .edit-btn {
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border);
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 20px;
+            background: var(--accent);
+            color: #000;
+            font-weight: 700;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
             cursor: pointer;
             transition: 0.3s;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
         }
 
         .edit-btn:hover {
-            background: var(--accent);
-            color: #000;
+            transform: scale(1.05);
+            background: #fff;
         }
 
-        /* Narration Card */
+        /* --- NARRATION CARD --- */
         .narration-card {
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 20, 20, 0.9) 100%);
-            backdrop-filter: blur(20px);
+            background: linear-gradient(180deg, rgba(20, 20, 20, 0.95) 0%, rgba(10, 10, 10, 0.98) 100%);
             border: 1px solid var(--border);
             border-left: 4px solid var(--accent);
-            padding: 28px;
-            border-radius: 0 16px 16px 0;
+            padding: 25px;
+            border-radius: 0 12px 12px 0;
             width: 90%;
-            max-width: 480px;
+            max-width: 500px;
             pointer-events: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
             transform: translateX(-150%);
-            transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         .narration-card.show {
@@ -114,134 +113,156 @@
         }
 
         .card-header {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: var(--accent);
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
         .card-body {
-            font-size: 1.15rem;
-            line-height: 1.7;
+            font-size: 1.1rem;
+            line-height: 1.6;
             color: #fff;
-            font-weight: 500;
         }
 
-        /* Controls */
+        /* --- CONTROLS --- */
         .controls {
             position: fixed;
             bottom: 35px;
             right: 35px;
             display: flex;
-            gap: 14px;
+            gap: 15px;
             pointer-events: auto;
         }
 
         .ctrl-btn {
-            width: 54px;
-            height: 54px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            background: rgba(20, 20, 20, 0.8);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             cursor: pointer;
-            transition: all 0.25s;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s;
         }
 
         .ctrl-btn:hover {
             background: var(--accent);
             color: #000;
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(0, 217, 255, 0.3);
+            transform: translateY(-3px);
         }
 
-        /* Advanced Map Visuals */
-        .pulse-dot {
-            width: 16px;
-            height: 16px;
-            background: var(--accent);
-            border-radius: 50%;
-            box-shadow: 0 0 0 0 rgba(0, 217, 255, 0.8);
-            animation: pulse-ring 2.5s ease-out infinite;
+        /* --- TOAST --- */
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        @keyframes pulse-ring {
-            0% {
-                box-shadow: 0 0 0 0 rgba(0, 217, 255, 0.8);
-            }
-
-            70% {
-                box-shadow: 0 0 0 25px rgba(0, 217, 255, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(0, 217, 255, 0);
-            }
-        }
-
-        .arrow-pointer {
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-bottom: 30px solid var(--accent);
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
-            animation: bounce-arrow 1.5s ease-in-out infinite;
-        }
-
-        @keyframes bounce-arrow {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-15px);
-            }
-        }
-
-        .map-label {
-            background: rgba(0, 0, 0, 0.85);
-            color: #fff;
-            padding: 8px 16px;
+        .custom-toast {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-left: 3px solid var(--accent);
+            color: white;
+            padding: 12px 24px;
             border-radius: 6px;
-            font-weight: 700;
-            font-size: 1rem;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            white-space: nowrap;
+            font-size: 0.9rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.6);
+            animation: slideDown 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        /* Font Variations */
-        .f-cinzel {
-            font-family: 'Cinzel', serif;
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
-        .f-play {
-            font-family: 'Playfair Display', serif;
+        /* --- MAP VISUALS --- */
+        .modern-label-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: visible;
         }
 
-        .f-orb {
-            font-family: 'Orbitron', sans-serif;
+        .label-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 10px currentColor;
+            margin-bottom: 6px;
+            background: currentColor;
         }
 
-        /* Leaflet Overrides */
-        .leaflet-control-zoom,
-        .leaflet-control-attribution {
-            display: none;
+        .label-text {
+            color: #fff;
+            text-shadow: 0 2px 4px #000;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 4px 10px;
+            border-radius: 4px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Modal Tweaks */
+        .modal-content {
+            background-color: #0f0f0f;
+            border: 1px solid #333;
+        }
+
+        .form-control,
+        .form-select {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            color: #fff;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            background-color: #222;
+            border-color: var(--accent);
+            color: #fff;
+            box-shadow: none;
+        }
+
+        .nav-tabs .nav-link {
+            color: #888;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: transparent;
+            border-color: var(--accent);
+            color: var(--accent);
+            border-bottom-width: 2px;
         }
     </style>
 </head>
@@ -249,12 +270,13 @@
 <body>
 
     <div id="map"></div>
+    <div id="toastContainer"></div>
 
     <div class="ui-overlay">
         <div class="top-controls">
-            <div class="brand">MAP VIDEO AI</div>
+            <div class="brand"><i class="bi bi-globe-americas me-2"></i>Map Studio AI</div>
             <button class="edit-btn" data-bs-toggle="modal" data-bs-target="#editorModal">
-                <i class="bi bi-gear-fill me-2"></i>EDITOR
+                <i class="bi bi-magic me-2"></i>CREATE
             </button>
         </div>
 
@@ -264,7 +286,7 @@
                 <span id="locTitle">SYSTEM</span>
             </div>
             <div class="card-body" id="locText">
-                Load a script and press play to begin your journey.
+                Welcome. Click 'Create' to generate a map journey.
             </div>
         </div>
 
@@ -275,72 +297,77 @@
         </div>
     </div>
 
-    <!-- MODAL -->
+    <!-- EDITOR MODAL -->
     <div class="modal fade" id="editorModal" data-bs-backdrop="static">
         <div class="modal-dialog modal-xl modal-dialog-centered">
-            <div class="modal-content bg-dark text-light border-secondary">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title text-info font-monospace">SCRIPT STUDIO</h5>
+            <div class="modal-content">
+                <div class="modal-header border-bottom border-secondary">
+                    <h5 class="modal-title text-white">SCRIPT GENERATOR</h5>
                     <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <ul class="nav nav-tabs mb-3">
-                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabJson">JSON Editor</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabPrompt">AI Prompt</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabDocs">Quick Guide</button></li>
+                    <ul class="nav nav-tabs mb-3 border-secondary">
+                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabPrompt">1. AI Setup</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabJson">2. Code Editor</button></li>
                     </ul>
+
                     <div class="tab-content">
-                        <!-- JSON -->
-                        <div class="tab-pane fade show active" id="tabJson">
-                            <textarea id="jsonEditor" class="form-control bg-black text-success font-monospace border-0" rows="16"></textarea>
-                        </div>
-                        <!-- Prompt -->
-                        <div class="tab-pane fade" id="tabPrompt">
-                            <div class="row g-3">
-                                <div class="col-12"><input id="pTopic" class="form-control bg-secondary text-white border-0" placeholder="Story Topic (e.g., Journey of Ganges River)"></div>
-                                <div class="col-6">
-                                    <select id="pStyle" class="form-select bg-secondary text-white border-0">
-                                        <option value="dark">Dark (Cinematic)</option>
+                        <!-- SETUP TAB -->
+                        <div class="tab-pane fade show active" id="tabPrompt">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="text-secondary small mb-1">STORY TOPIC</label>
+                                    <input id="pTopic" class="form-control" placeholder="e.g. The Expansion of the Mongol Empire">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="text-secondary small mb-1">MAP STYLE</label>
+                                    <select id="pStyle" class="form-select">
                                         <option value="satellite">Satellite (Realistic)</option>
+                                        <option value="dark">Dark Matter (Cinematic)</option>
                                         <option value="voyager">Voyager (Clean)</option>
                                         <option value="light">Light (Classic)</option>
                                     </select>
                                 </div>
-                                <div class="col-6"><input id="pLang" class="form-control bg-secondary text-white border-0" value="English"></div>
-                                <div class="col-12 mt-3">
-                                    <div class="bg-black p-3 rounded">
-                                        <pre id="promptOut" class="text-warning mb-0" style="white-space: pre-wrap; font-size: 0.75rem;"></pre>
+                                <div class="col-md-12">
+                                    <label class="text-secondary small mb-1">NARRATION VOICE (Determines Language)</label>
+                                    <select id="voiceSelect" class="form-select">
+                                        <option>Loading voices...</option>
+                                    </select>
+                                    <div class="text-secondary small mt-1" id="voiceInfo">
+                                        <i class="bi bi-info-circle"></i> This voice ID will be saved in the script to ensure the correct language is used during playback.
                                     </div>
-                                    <button class="btn btn-outline-warning w-100 mt-2" onclick="copyPrompt()"><i class="bi bi-clipboard-check"></i> COPY</button>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="bg-black p-3 rounded border border-secondary position-relative">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-info small fw-bold">GENERATED PROMPT</span>
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="copyPrompt()">COPY</button>
+                                        </div>
+                                        <pre id="promptOut" class="text-secondary mb-0" style="white-space: pre-wrap; font-size: 0.75rem; max-height: 150px; overflow-y:auto;"></pre>
+                                    </div>
+
+                                    <div class="d-flex gap-2 mt-3">
+                                        <button class="btn btn-primary flex-grow-1" onclick="openAI('chatgpt')"><i class="bi bi-chat-fill"></i> Ask ChatGPT</button>
+                                        <button class="btn btn-info flex-grow-1" onclick="openAI('perplexity')"><i class="bi bi-search"></i> Ask Perplexity</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- Docs -->
-                        <div class="tab-pane fade" id="tabDocs">
-                            <div class="bg-black p-3 rounded" style="max-height: 400px; overflow-y: auto;">
-                                <h6 class="text-info">Available Event Types:</h6>
-                                <ul class="small text-secondary">
-                                    <li><code>pan</code> - Smooth camera movement to location</li>
-                                    <li><code>zoom</code> - Zoom in/out on area</li>
-                                    <li><code>marker</code> - Pulsing point marker</li>
-                                    <li><code>arrow</code> - Animated directional pointer</li>
-                                    <li><code>circle</code> - Circular highlight area</li>
-                                    <li><code>polygon</code> - Custom shape (provide coordinates array)</li>
-                                    <li><code>rectangle</code> - Rectangular area (provide bounds)</li>
-                                    <li><code>label</code> - Text overlay on map</li>
-                                    <li><code>line</code> - Animated route/path</li>
-                                </ul>
-                                <h6 class="text-info mt-3">Visual Properties:</h6>
-                                <p class="small text-secondary">Use <code>"visual"</code> object with: <code>color</code>, <code>size</code>, <code>animation</code> ("pulse", "fade", "grow"), <code>opacity</code></p>
-                                <h6 class="text-info mt-3">Auto-Centering:</h6>
-                                <p class="small text-secondary">The map automatically centers on each event. Specify <code>"zoom"</code> to override auto-zoom.</p>
+
+                        <!-- JSON TAB -->
+                        <div class="tab-pane fade" id="tabJson">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-secondary small pt-2">Paste the AI response code block here</span>
+                                <button class="btn btn-sm btn-warning fw-bold" onclick="pasteJSON()"><i class="bi bi-clipboard-plus"></i> PASTE</button>
                             </div>
+                            <textarea id="jsonEditor" class="form-control font-monospace text-success bg-black border-0" rows="15" placeholder="{ ... }"></textarea>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-secondary">
-                    <button class="btn btn-outline-light" onclick="loadSample()">Load Sample</button>
-                    <button class="btn btn-info fw-bold px-4" onclick="runScript()">RUN SCRIPT</button>
+                <div class="modal-footer border-top border-secondary">
+                    <button class="btn btn-outline-light btn-sm" onclick="loadSample()">Load Sample</button>
+                    <button class="btn btn-info fw-bold px-4 rounded-pill" onclick="runScript()">RUN SCRIPT <i class="bi bi-play-circle-fill ms-2"></i></button>
                 </div>
             </div>
         </div>
@@ -350,30 +377,25 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // --- STATE ---
+        // --- GLOBAL STATE ---
         let map, script = null,
             step = 0,
             playing = false,
             ttsOn = true;
+        let selectedVoice = null;
         const synth = window.speechSynthesis;
-        let layers = []; // Track all dynamic layers
+        let layers = [];
 
-        // --- THEMES ---
         const THEMES = {
             'dark': 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
             'light': 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
             'voyager': 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
             'satellite': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-            'street': 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
         };
 
-        // --- INIT ---
         window.addEventListener('load', () => {
-            map = L.map('map', {
-                zoomControl: false,
-                attributionControl: false
-            }).setView([20, 0], 2);
-            L.tileLayer(THEMES['dark']).addTo(map);
+            initMap();
+            initVoiceSelector();
 
             document.getElementById('btnPlay').onclick = togglePlay;
             document.getElementById('btnSound').onclick = toggleSound;
@@ -382,86 +404,207 @@
                 else document.exitFullscreen();
             };
 
-            ['pTopic', 'pStyle', 'pLang'].forEach(id => {
+            // Live Prompt Update Listeners
+            ['pTopic', 'pStyle', 'voiceSelect'].forEach(id => {
+                document.getElementById(id).addEventListener('change', genPrompt);
                 document.getElementById(id).addEventListener('input', genPrompt);
             });
-            genPrompt();
         });
 
-        // --- PROMPT GENERATOR ---
+        function initMap() {
+            map = L.map('map', {
+                zoomControl: false,
+                attributionControl: false
+            }).setView([20, 0], 2);
+            L.tileLayer(THEMES['satellite']).addTo(map);
+        }
+
+        // --- TTS & VOICE SELECTOR ---
+        function initVoiceSelector() {
+            const voiceSelect = document.getElementById('voiceSelect');
+
+            const populate = () => {
+                const voices = synth.getVoices();
+                if (voices.length === 0) return;
+
+                voiceSelect.innerHTML = '';
+                voices.sort((a, b) => a.lang.localeCompare(b.lang));
+
+                let currentLang = '';
+                let optGroup = null;
+
+                voices.forEach((v, index) => {
+                    let label = `${v.name} (${v.lang})`;
+                    if (v.lang !== currentLang) {
+                        currentLang = v.lang;
+                        optGroup = document.createElement('optgroup');
+                        optGroup.label = getLangName(v.lang);
+                        voiceSelect.appendChild(optGroup);
+                    }
+                    const option = document.createElement('option');
+                    option.textContent = label;
+                    option.value = index;
+                    option.dataset.lang = v.lang;
+                    option.dataset.name = v.name; // Store actual name for auto-select logic
+
+                    // Default to English US if available
+                    if (!selectedVoice && (v.name.includes("Google US") || v.lang === 'en-US')) {
+                        option.selected = true;
+                        selectedVoice = v;
+                    }
+                    optGroup.appendChild(option);
+                });
+
+                if (!selectedVoice && voices.length > 0) selectedVoice = voices[0];
+                genPrompt();
+            };
+
+            if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = populate;
+            populate();
+
+            voiceSelect.addEventListener('change', (e) => {
+                const voices = synth.getVoices();
+                selectedVoice = voices[e.target.value];
+                notify(`Voice changed to: ${selectedVoice.name}`);
+                genPrompt();
+            });
+        }
+
+        function getLangName(langCode) {
+            try {
+                const displayNames = new Intl.DisplayNames(['en'], {
+                    type: 'language'
+                });
+                return displayNames.of(langCode) || langCode;
+            } catch (e) {
+                return langCode;
+            }
+        }
+
+        // --- AUTO SELECT VOICE FROM SCRIPT ---
+        function autoSelectVoice(scriptVoice) {
+            if (!scriptVoice) return;
+            const voices = synth.getVoices();
+            const voiceSelect = document.getElementById('voiceSelect');
+
+            // 1. Try exact name match
+            let match = voices.find(v => v.name === scriptVoice.name);
+            // 2. Try language match
+            if (!match) match = voices.find(v => v.lang === scriptVoice.lang);
+            // 3. Try language prefix match (e.g. 'hi' matches 'hi-IN')
+            if (!match && scriptVoice.lang) match = voices.find(v => v.lang.startsWith(scriptVoice.lang.split('-')[0]));
+
+            if (match) {
+                selectedVoice = match;
+                // Update dropdown UI to reflect change
+                const index = voices.indexOf(match);
+                if (index > -1) {
+                    voiceSelect.value = index;
+                    notify(`Voice Auto-Loaded: ${match.name}`);
+                    genPrompt(); // Update prompt to match new voice
+                }
+            } else {
+                notify(`Saved voice not found. Using: ${selectedVoice?.name || 'Default'}`, 'error');
+            }
+        }
+
+        // --- PROMPT GENERATION ---
         function genPrompt() {
-            const topic = document.getElementById('pTopic').value || "[YOUR_TOPIC]";
+            const topic = document.getElementById('pTopic').value || "The Great Wall of China";
             const style = document.getElementById('pStyle').value;
-            const lang = document.getElementById('pLang').value;
+            const langCode = selectedVoice ? selectedVoice.lang : 'en-US';
+            const voiceName = selectedVoice ? selectedVoice.name : 'Default';
+            const langName = getLangName(langCode);
 
-            const prompt = `You are a professional map animation designer.
-Generate a JSON script for an interactive map video.
+            const prompt = `Act as a GIS Documentary Expert. Create a valid JSON script for a map video.
+TOPIC: "${topic}"
+MAP VISUAL STYLE: ${style}
+NARRATION LANGUAGE: ${langName} (${langCode})
 
-REQUIREMENTS:
-- Topic: ${topic}
-- Map Style: ${style}
-- Language: ${lang}
+CRITICAL INSTRUCTIONS:
+1. **Polygons (shapes):** When highlighting regions, use "polygon" type with DETAILED coordinate arrays (10+ points) for realistic shapes. Most of the time try to point it using border places/ai accurate palces, not random points , as that can make wrong structure, please think about this more and execute.
+2. **Narration:** Write engaging, factual documentary-style narration.
+3. **Voice ID:** The JSON must include the provided voice details so the app knows which TTS voice to use.
 
-JSON STRUCTURE (strictly follow):
+JSON STRUCTURE (Strictly only this):
+\`\`\`json
 {
   "title": "Video Title",
   "style": "${style}",
+  "voice": { "lang": "${langCode}", "name": "${voiceName}" },
   "map": { "initialCenter": [lat, lng], "initialZoom": number },
   "timeline": [
     {
-      "type": "pan" | "zoom" | "marker" | "arrow" | "circle" | "polygon" | "label" | "line",
-      "location": [lat, lng] OR array of coordinates for polygon/line,
-      "zoom": number (optional - auto-calculated if not provided),
+      "type": "pan" | "marker" | "label" | "polygon" | "line" | "circle",
+      "location": [lat, lng] OR [[lat,lng]...] for polygons/lines,
+      "label": "Text (if type is label)",
       "visual": { 
-        "color": "#HEX", 
-        "size": "small|medium|large",
-        "animation": "pulse|fade|grow",
-        "opacity": 0.0-1.0
+         "color": "#HEXCODE", 
+         "opacity": 0.5,
+         "weight": 3 
       },
-      "narration": {
-        "title": "Location Name (SHORT)",
-        "text": "Narration text (1-2 sentences max for TTS)"
+      "narration": { 
+         "title": "HEADER", 
+         "text": "Narration text here." 
       }
     }
   ]
 }
-
-EVENT TYPES EXPLAINED:
-- "pan": Move camera to location (auto-centers)
-- "marker": Pulsing dot at location (auto-centers)
-- "arrow": Directional pointer at location (auto-centers)
-- "circle": Circular area highlight (auto-fits bounds)
-- "polygon": Custom shape (auto-fits bounds to show full shape)
-- "rectangle": Box area (auto-fits bounds)
-- "label": Text overlay at location (auto-centers)
-- "line": Animated path (auto-fits to show entire route)
-
-RULES:
-- All coordinates must be real [latitude, longitude] numbers
-- Keep narration concise (TTS will read it aloud)
-- Use vivid colors for visual appeal
-- NO markdown, NO comments - just RAW JSON
-- Timeline must be sorted chronologically
-- Map automatically centers on each event - no need to specify zoom unless you want to override
-
-Return ONLY the JSON object.`;
-
+\`\`\``;
             document.getElementById('promptOut').innerText = prompt;
+        }
+
+        // --- UTILS ---
+        function notify(msg, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'custom-toast';
+            toast.style.borderLeftColor = type === 'error' ? '#ff3333' : '#00E5FF';
+            toast.innerHTML = `<i class="bi ${type==='error'?'bi-exclamation-triangle-fill':'bi-check-circle-fill'}"></i> ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
         function copyPrompt() {
             navigator.clipboard.writeText(document.getElementById('promptOut').innerText);
-            alert("✅ Prompt copied! Paste into ChatGPT/Claude.");
+            notify("Prompt copied to clipboard");
+        }
+
+        async function pasteJSON() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('jsonEditor').value = text;
+                notify("JSON Pasted!");
+            } catch (e) {
+                notify("Allow clipboard permissions", "error");
+            }
+        }
+
+        function openAI(engine) {
+            const p = document.getElementById('promptOut').innerText;
+            const url = engine === 'perplexity' ?
+                `https://www.perplexity.ai/?q=${encodeURIComponent(p)}` :
+                `https://chatgpt.com/?q=${encodeURIComponent(p)}`;
+            window.open(url, '_blank');
         }
 
         // --- SCRIPT ENGINE ---
         function runScript() {
             try {
-                const raw = document.getElementById('jsonEditor').value;
-                script = JSON.parse(raw);
+                let raw = document.getElementById('jsonEditor').value;
+                const match = raw.match(/```json([\s\S]*?)```/);
+                if (match) raw = match[1];
 
-                // Apply Theme
-                setTheme(script.style || 'dark');
+                script = JSON.parse(raw);
+                setTheme(script.style || 'satellite');
+
+                // *** AUTO SELECT VOICE ***
+                if (script.voice) {
+                    autoSelectVoice(script.voice);
+                }
 
                 // Reset
                 step = 0;
@@ -471,14 +614,13 @@ Return ONLY the JSON object.`;
                     animate: false
                 });
 
-                // UI
                 bootstrap.Modal.getInstance(document.getElementById('editorModal')).hide();
-                showCard("READY", script.title || "Untitled Project");
-                document.getElementById('narratorCard').classList.add('show');
+                showCard("READY", script.title);
+                notify("Script loaded successfully");
                 updatePlayBtn(false);
 
             } catch (e) {
-                alert("❌ JSON Error: " + e.message);
+                notify("Invalid JSON: " + e.message, "error");
             }
         }
 
@@ -486,29 +628,21 @@ Return ONLY the JSON object.`;
             map.eachLayer(l => {
                 if (l instanceof L.TileLayer) map.removeLayer(l);
             });
-            L.tileLayer(THEMES[style] || THEMES['dark'], {
+            L.tileLayer(THEMES[style] || THEMES['satellite'], {
                 maxZoom: 19
             }).addTo(map);
-
-            // Visual filters for readability
-            const mapEl = document.getElementById('map');
-            if (style === 'satellite') mapEl.style.filter = "brightness(1.2) contrast(1.1)";
-            else if (style === 'dark') mapEl.style.filter = "brightness(0.95) contrast(1.15)";
-            else mapEl.style.filter = "none";
         }
 
         function togglePlay() {
-            if (!script) return alert("⚠️ Load a script first!");
+            if (!script) return notify("Create a script first", "error");
+            playing = !playing;
+            updatePlayBtn(playing);
 
             if (playing) {
-                playing = false;
-                synth.cancel();
-                updatePlayBtn(false);
-            } else {
-                playing = true;
-                updatePlayBtn(true);
                 if (synth.paused) synth.resume();
                 else playNext();
+            } else {
+                synth.cancel();
             }
         }
 
@@ -517,33 +651,28 @@ Return ONLY the JSON object.`;
             if (step >= script.timeline.length) {
                 playing = false;
                 updatePlayBtn(false);
-                showCard("END", "Story Complete.");
+                showCard("FINISH", "End of presentation.");
                 return;
             }
 
             const event = script.timeline[step];
 
-            // *** AUTO-CENTER CAMERA FOR EVERY EVENT ***
-            autoCenterEvent(event);
+            moveCamera(event);
+            setTimeout(() => drawVisual(event), 600);
 
-            // Execute Visual (after camera moves)
-            setTimeout(() => {
-                executeVisual(event);
-            }, 500);
-
-            // Narration
             if (event.narration) {
                 showCard(event.narration.title, event.narration.text);
                 if (ttsOn) {
                     speak(event.narration.text, () => {
                         step++;
-                        setTimeout(playNext, 600);
+                        setTimeout(playNext, 800);
                     });
                 } else {
+                    const delay = Math.max(2000, event.narration.text.length * 70);
                     setTimeout(() => {
                         step++;
                         playNext();
-                    }, 3500);
+                    }, delay);
                 }
             } else {
                 setTimeout(() => {
@@ -553,181 +682,88 @@ Return ONLY the JSON object.`;
             }
         }
 
-        // *** NEW: AUTO-CENTER FUNCTION ***
-        function autoCenterEvent(e) {
-            const defaultZoom = {
-                'marker': 10,
-                'arrow': 10,
-                'label': 9,
-                'pan': 8,
-                'zoom': e.zoom || 7,
-                'circle': 7,
-                'polygon': 6,
-                'rectangle': 6,
-                'line': 5
+        function moveCamera(e) {
+            const z = e.zoom || 6;
+            if (['polygon', 'line'].includes(e.type) && Array.isArray(e.location)) {
+                map.flyToBounds(e.location, {
+                    padding: [50, 50],
+                    duration: 2.5
+                });
+            } else {
+                map.flyTo(e.location, z, {
+                    duration: 2.5
+                });
+            }
+        }
+
+        function drawVisual(e) {
+            const color = e.visual?.color || '#00E5FF';
+            const opacity = e.visual?.opacity || 0.5;
+            const weight = e.visual?.weight || 3;
+
+            switch (e.type) {
+                case 'marker':
+                    const iconHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="${color}" filter="drop-shadow(0 0 5px rgba(0,0,0,0.8))"><path d="M172.268 501.67C26.97 291.031 0 269.413 0 192 0 85.961 85.961 0 192 0s192 85.961 192 192c0 77.413-26.97 99.031-172.268 309.67-9.535 13.774-29.93 13.773-39.464 0zM192 272c44.183 0 80-35.817 80-80s-35.817-80-80-80-80 35.817-80 80 35.817 80 80 80z"/></svg>`;
+                    const pin = L.divIcon({
+                        className: '',
+                        html: `<div style="width:30px">${iconHTML}</div>`,
+                        iconSize: [30, 42],
+                        iconAnchor: [15, 42]
+                    });
+                    layers.push(L.marker(e.location, {
+                        icon: pin
+                    }).addTo(map));
+                    break;
+                case 'label':
+                    const lbl = L.divIcon({
+                        className: 'modern-label-container',
+                        html: `<div class="label-dot" style="color:${color}"></div><div class="label-text">${e.label}</div>`,
+                        iconSize: [120, 50],
+                        iconAnchor: [60, 7]
+                    });
+                    layers.push(L.marker(e.location, {
+                        icon: lbl
+                    }).addTo(map));
+                    break;
+                case 'polygon':
+                    layers.push(L.polygon(e.location, {
+                        color: color,
+                        fillColor: color,
+                        fillOpacity: opacity,
+                        weight: weight
+                    }).addTo(map));
+                    break;
+                case 'line':
+                    layers.push(L.polyline(e.location, {
+                        color: color,
+                        weight: weight,
+                        opacity: 1,
+                        dashArray: '10,10'
+                    }).addTo(map));
+                    break;
+                case 'circle':
+                    layers.push(L.circle(e.location, {
+                        radius: 100000,
+                        color: color,
+                        fillColor: color,
+                        fillOpacity: opacity
+                    }).addTo(map));
+                    break;
+            }
+        }
+
+        function speak(text, cb) {
+            synth.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            if (selectedVoice) u.voice = selectedVoice;
+            u.rate = 1.0;
+
+            document.getElementById('ttsSpinner').style.display = 'inline-block';
+            u.onend = () => {
+                document.getElementById('ttsSpinner').style.display = 'none';
+                if (cb) cb();
             };
-
-            // Get target zoom (from JSON or default)
-            const targetZoom = e.zoom || defaultZoom[e.type] || 6;
-
-            switch (e.type) {
-                case 'marker':
-                case 'arrow':
-                case 'label':
-                case 'pan':
-                case 'zoom':
-                    // Single point - just flyTo
-                    const coords = Array.isArray(e.location) ? e.location : [0, 0];
-                    map.flyTo(coords, targetZoom, {
-                        duration: 2,
-                        easeLinearity: 0.25
-                    });
-                    break;
-
-                case 'circle':
-                    // Circle - calculate bounds from center + radius
-                    const center = Array.isArray(e.location) ? e.location : [0, 0];
-                    const radius = e.radius || 120000; // meters
-                    const bounds = L.latLng(center).toBounds(radius * 2);
-                    map.flyToBounds(bounds, {
-                        padding: [50, 50],
-                        duration: 2,
-                        maxZoom: targetZoom
-                    });
-                    break;
-
-                case 'polygon':
-                case 'line':
-                    // Multi-point - fit bounds to show all points
-                    if (Array.isArray(e.location) && e.location.length > 0) {
-                        const polyBounds = L.latLngBounds(e.location);
-                        map.flyToBounds(polyBounds, {
-                            padding: [80, 80],
-                            duration: 2,
-                            maxZoom: targetZoom
-                        });
-                    }
-                    break;
-
-                case 'rectangle':
-                    // Rectangle - fit to provided bounds
-                    if (Array.isArray(e.location) && e.location.length === 2) {
-                        map.flyToBounds(e.location, {
-                            padding: [50, 50],
-                            duration: 2
-                        });
-                    }
-                    break;
-            }
-        }
-
-        // --- VISUAL EXECUTION ---
-        function executeVisual(e) {
-            const color = e.visual?.color || '#00D9FF';
-            const opacity = e.visual?.opacity || 0.6;
-
-            switch (e.type) {
-                case 'marker':
-                    addMarker(e.location, color);
-                    break;
-                case 'arrow':
-                    addArrow(e.location, color);
-                    break;
-                case 'circle':
-                    addCircle(e.location, color, opacity, e.radius);
-                    break;
-                case 'polygon':
-                    addPolygon(e.location, color, opacity);
-                    break;
-                case 'rectangle':
-                    addRectangle(e.location, color, opacity);
-                    break;
-                case 'label':
-                    addLabel(e.location, e.label || e.narration?.title, color);
-                    break;
-                case 'line':
-                    addLine(e.location, color);
-                    break;
-            }
-        }
-
-        function addMarker(coords, color) {
-            const icon = L.divIcon({
-                className: 'custom-marker',
-                html: `<div class="pulse-dot" style="background:${color}; box-shadow: 0 0 0 0 ${color}CC;"></div>`,
-                iconSize: [16, 16],
-                iconAnchor: [8, 8]
-            });
-            const m = L.marker(coords, {
-                icon
-            }).addTo(map);
-            layers.push(m);
-        }
-
-        function addArrow(coords, color) {
-            const icon = L.divIcon({
-                className: 'arrow-icon',
-                html: `<div class="arrow-pointer" style="border-bottom-color:${color};"></div>`,
-                iconSize: [30, 30],
-                iconAnchor: [15, 30]
-            });
-            const m = L.marker(coords, {
-                icon
-            }).addTo(map);
-            layers.push(m);
-        }
-
-        function addCircle(coords, color, opacity, radius) {
-            const c = L.circle(coords, {
-                color: color,
-                fillColor: color,
-                fillOpacity: opacity,
-                radius: radius || 120000,
-                weight: 2
-            }).addTo(map);
-            layers.push(c);
-        }
-
-        function addPolygon(coords, color, opacity) {
-            const p = L.polygon(coords, {
-                color: color,
-                fillColor: color,
-                fillOpacity: opacity,
-                weight: 3
-            }).addTo(map);
-            layers.push(p);
-        }
-
-        function addRectangle(bounds, color, opacity) {
-            const r = L.rectangle(bounds, {
-                color: color,
-                fillColor: color,
-                fillOpacity: opacity,
-                weight: 3
-            }).addTo(map);
-            layers.push(r);
-        }
-
-        function addLabel(coords, text, color) {
-            const icon = L.divIcon({
-                className: 'text-label',
-                html: `<div class="map-label" style="border-color:${color}; color:${color};">${text}</div>`,
-                iconAnchor: [0, 0]
-            });
-            const m = L.marker(coords, {
-                icon
-            }).addTo(map);
-            layers.push(m);
-        }
-
-        function addLine(coords, color) {
-            const line = L.polyline(coords, {
-                color: color,
-                weight: 4,
-                opacity: 0.9,
-                dashArray: '10, 10'
-            }).addTo(map);
-            layers.push(line);
+            synth.speak(u);
         }
 
         function clearLayers() {
@@ -735,134 +771,95 @@ Return ONLY the JSON object.`;
             layers = [];
         }
 
-        // --- HELPERS ---
         function showCard(title, text) {
-            document.getElementById('locTitle').innerText = title || "INFO";
+            document.getElementById('locTitle').innerText = title;
             document.getElementById('locText').innerText = text;
-
-            const fonts = ['f-cinzel', 'f-play', 'f-orb', ''];
-            const rand = fonts[Math.floor(Math.random() * fonts.length)];
-            document.getElementById('locText').className = 'card-body ' + rand;
-
             document.getElementById('narratorCard').classList.add('show');
         }
 
-        function speak(text, callback) {
-            synth.cancel();
-            const u = new SpeechSynthesisUtterance(text);
-            u.rate = 0.95;
-
-            const spinner = document.getElementById('ttsSpinner');
-            spinner.style.display = 'inline-block';
-
-            u.onend = () => {
-                spinner.style.display = 'none';
-                if (callback) callback();
-            };
-            synth.speak(u);
-        }
-
-        function updatePlayBtn(isPlaying) {
-            const btn = document.getElementById('btnPlay');
-            btn.innerHTML = isPlaying ? '<i class="bi bi-pause-fill"></i>' : '<i class="bi bi-play-fill"></i>';
+        function updatePlayBtn(isP) {
+            document.getElementById('btnPlay').innerHTML = isP ? '<i class="bi bi-pause-fill"></i>' : '<i class="bi bi-play-fill"></i>';
         }
 
         function toggleSound() {
             ttsOn = !ttsOn;
-            const btn = document.getElementById('btnSound');
-            btn.innerHTML = ttsOn ? '<i class="bi bi-volume-up-fill"></i>' : '<i class="bi bi-volume-mute-fill"></i>';
+            document.getElementById('btnSound').innerHTML = ttsOn ? '<i class="bi bi-volume-up-fill"></i>' : '<i class="bi bi-volume-mute-fill"></i>';
             if (!ttsOn) synth.cancel();
         }
 
         function loadSample() {
             const sample = {
-                "title": "Auto-Center Demo: India Geography",
-                "style": "voyager",
+                "title": "अरावली पर्वतमाला",
+                "style": "satellite",
+                "voice": {
+                    "lang": "hi-IN",
+                    "name": "Google Hindi"
+                },
                 "map": {
-                    "initialCenter": [20.5937, 78.9629],
-                    "initialZoom": 4
+                    "initialCenter": [24.5, 73.5],
+                    "initialZoom": 6
                 },
                 "timeline": [{
-                        "type": "marker",
-                        "location": [28.6139, 77.2090],
-                        "visual": {
-                            "color": "#FF6B6B"
-                        },
+                        "type": "pan",
+                        "location": [24.5, 73.5],
                         "narration": {
-                            "title": "DELHI",
-                            "text": "Our journey begins in Delhi, the capital. Watch as the map auto-centers."
-                        }
-                    },
-                    {
-                        "type": "arrow",
-                        "location": [28.6129, 77.2295],
-                        "visual": {
-                            "color": "#FFD93D"
-                        },
-                        "narration": {
-                            "title": "INDIA GATE",
-                            "text": "Here is the India Gate memorial. The camera automatically focuses on this exact location."
-                        }
-                    },
-                    {
-                        "type": "line",
-                        "location": [
-                            [28.6139, 77.2090],
-                            [27.1767, 78.0081],
-                            [25.3176, 82.9739]
-                        ],
-                        "visual": {
-                            "color": "#51CF66"
-                        },
-                        "narration": {
-                            "title": "ROUTE",
-                            "text": "This animated line connects Delhi, Agra, and Varanasi. The map auto-fits to show the entire route."
-                        }
-                    },
-                    {
-                        "type": "circle",
-                        "location": [25.3176, 82.9739],
-                        "visual": {
-                            "color": "#9B59B6",
-                            "opacity": 0.4
-                        },
-                        "narration": {
-                            "title": "VARANASI REGION",
-                            "text": "The camera auto-zooms out to show this entire circular region around Varanasi."
+                            "title": "परिचय",
+                            "text": "अरावली पर्वतमाला भारत की सबसे प्राचीन पर्वत श्रृंखलाओं में से एक है, जो राजस्थान, हरियाणा, गुजरात और दिल्ली तक फैली है।"
                         }
                     },
                     {
                         "type": "polygon",
                         "location": [
-                            [8, 77],
-                            [8, 78],
-                            [9, 78],
-                            [9, 77]
+                            [28.35, 76.64],
+                            [27.90, 75.95],
+                            [27.40, 75.20],
+                            [26.80, 74.70],
+                            [26.20, 74.10],
+                            [25.80, 73.50],
+                            [25.40, 73.00],
+                            [25.00, 72.70],
+                            [24.60, 72.60],
+                            [24.10, 72.50],
+                            [23.60, 72.40],
+                            [23.20, 72.20],
+                            [22.90, 72.10],
+                            [22.70, 72.30],
+                            [23.10, 72.80]
                         ],
                         "visual": {
-                            "color": "#00D9FF",
-                            "opacity": 0.3
+                            "color": "#1E90FF",
+                            "opacity": 0.4,
+                            "weight": 2
                         },
                         "narration": {
-                            "title": "KERALA",
-                            "text": "Watch how the map automatically fits this entire polygon area representing Kerala backwaters."
+                            "title": "भौगोलिक विस्तार",
+                            "text": "अरावली श्रृंखला लगभग 700 किलोमीटर तक फैली हुई है। यह भूगर्भीय दृष्टि से अरबों वर्ष पुरानी है।"
+                        }
+                    },
+                    {
+                        "type": "marker",
+                        "location": [27.0, 75.9],
+                        "narration": {
+                            "title": "राजस्थान का हृदय",
+                            "text": "राजस्थान में अरावली की सबसे प्रमुख ऊँचाई माउंट आबू है, जो एक प्रसिद्ध पर्यटन और तीर्थ स्थल है।"
                         }
                     },
                     {
                         "type": "label",
-                        "location": [19.0760, 72.8777],
-                        "label": "MUMBAI",
+                        "location": [24.6, 72.8],
+                        "label": "ARAVALLI RANGE",
                         "visual": {
-                            "color": "#FFD93D"
+                            "color": "#FFD700"
                         },
                         "narration": {
-                            "title": "MUMBAI",
-                            "text": "Finally, we auto-center on Mumbai's label on the western coast."
+                            "title": "भू-आकृति और प्रकृति",
+                            "text": "अरावली क्षेत्र में विविध प्रकार की चट्टानें, ग्रेनाइट और क्वार्टजाइट पाई जाती हैं।"
                         }
                     }
                 ]
             };
             document.getElementById('jsonEditor').value = JSON.stringify(sample, null, 2);
+            notify("Hindi Sample loaded! (Voice set to Hindi)");
         }
     </script>
 </body>
